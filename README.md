@@ -58,7 +58,7 @@ For the **frontend** dev server, copy [`frontend/.env.example`](frontend/.env.ex
 
 ## 3. Python dependencies (bridge)
 
-Dependencies are declared in [`ros2_ws/src/livekit_bridge/pyproject.toml`](ros2_ws/src/livekit_bridge/pyproject.toml); [`uv.lock`](ros2_ws/src/livekit_bridge/uv.lock) pins versions for reproducible installs.
+Runtime dependencies are listed in [`setup.py`](ros2_ws/src/livekit_bridge/setup.py) (`install_requires`) and mirrored in [`requirements.txt`](ros2_ws/src/livekit_bridge/requirements.txt). This package uses **classic `setup.py` only** (no `pyproject.toml` `[project]` metadata): `colcon` introspects `setup.py` in a way that breaks on setuptools’ `python_requires` / PEP 621 `requires-python` (`SpecifierSet` is not `literal_eval`-safe).
 
 Install into the **same Python interpreter you use with ROS 2** (after sourcing your ROS setup):
 
@@ -68,14 +68,20 @@ cd ros2_ws/src/livekit_bridge
 uv pip install -e .
 ```
 
-Alternative: use a local virtualenv managed by uv. If that interpreter must still import `rclpy` from the system ROS install, create the venv with system site packages, then sync:
+Or install from the requirements file:
+
+```bash
+uv pip install -r requirements.txt
+```
+
+Optional: a local venv so `rclpy` from the system ROS install remains importable:
 
 ```bash
 source /opt/ros/$ROS_DISTRO/setup.bash
 cd ros2_ws/src/livekit_bridge
 uv venv --system-site-packages --python "$(which python3)"
 source .venv/bin/activate
-uv sync
+uv pip install -e .
 ```
 
 ## 4. Build and run the ROS 2 publisher

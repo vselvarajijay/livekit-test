@@ -1,0 +1,5 @@
+# Mirrors install_requires in setup.py.
+livekit>=1.0,<2
+livekit-api>=1.0,<2
+av>=12
+python-dotenv>=1.0
