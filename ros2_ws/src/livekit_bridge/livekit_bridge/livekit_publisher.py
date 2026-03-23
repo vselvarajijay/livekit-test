@@ -16,11 +16,19 @@ import rclpy
 from dotenv import load_dotenv
 from livekit import api, rtc
 from rclpy.node import Node
+from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
 from sensor_msgs.msg import CompressedImage
 
 LOGGER = logging.getLogger("livekit_bridge.publisher")
 
 MAX_QUEUE_SIZE = 2
+
+# Match typical camera / image_transport publishers (BEST_EFFORT); default RELIABLE is incompatible.
+_SUB_QOS = QoSProfile(
+    depth=10,
+    reliability=ReliabilityPolicy.BEST_EFFORT,
+    history=HistoryPolicy.KEEP_LAST,
+)
 
 
 def _load_dotenv_from_repo() -> None:
@@ -252,7 +260,7 @@ class LiveKitPublisherNode(Node):
                 CompressedImage,
                 t,
                 self._make_cb(t, q),
-                10,
+                _SUB_QOS,
             )
             self.get_logger().info(
                 f"Subscribed to {t} (sensor_msgs/CompressedImage)"

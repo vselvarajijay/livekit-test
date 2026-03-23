@@ -94,6 +94,8 @@ source install/setup.bash
 ros2 run livekit_bridge livekit_publisher
 ```
 
+After you change anything under `livekit_bridge/`, run `colcon build --packages-select livekit_bridge` again. The `install/` tree copies the package into `install/.../site-packages/`; if you skip rebuilding, `python3 -m livekit_bridge.livekit_publisher` (with `install/setup.bash` sourced) can keep running **stale** code and you will see old tracebacks.
+
 Ensure your robot (or a bag/player) publishes **H.264** byte streams on `ROS2_VIDEO_TOPICS` as `sensor_msgs/msg/CompressedImage`.
 
 ## 5. Access tokens (JWT)
