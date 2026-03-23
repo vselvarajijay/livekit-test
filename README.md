@@ -6,7 +6,7 @@ One-way video from ROS 2 `sensor_msgs/msg/CompressedImage` topics (H.264 payload
 
 - **ROS 2** (Humble or newer) with `rclpy` and `sensor_msgs`
 - **Docker** (for local LiveKit)
-- **Python 3.10+** with `pip`
+- **Python 3.10+** and [**uv**](https://docs.astral.sh/uv/getting-started/installation/) (Python package manager)
 - **Node.js 20+** (for the operator UI)
 
 ## 1. Run LiveKit locally (Docker)
@@ -58,10 +58,24 @@ For the **frontend** dev server, copy [`frontend/.env.example`](frontend/.env.ex
 
 ## 3. Python dependencies (bridge)
 
-Install LiveKit, PyAV, and dotenv into the same Python environment you use with ROS 2 (system, venv, or conda):
+Dependencies are declared in [`ros2_ws/src/livekit_bridge/pyproject.toml`](ros2_ws/src/livekit_bridge/pyproject.toml); [`uv.lock`](ros2_ws/src/livekit_bridge/uv.lock) pins versions for reproducible installs.
+
+Install into the **same Python interpreter you use with ROS 2** (after sourcing your ROS setup):
 
 ```bash
-pip install -r ros2_ws/src/livekit_bridge/requirements.txt
+source /opt/ros/$ROS_DISTRO/setup.bash   # adjust for your install
+cd ros2_ws/src/livekit_bridge
+uv pip install -e .
+```
+
+Alternative: use a local virtualenv managed by uv. If that interpreter must still import `rclpy` from the system ROS install, create the venv with system site packages, then sync:
+
+```bash
+source /opt/ros/$ROS_DISTRO/setup.bash
+cd ros2_ws/src/livekit_bridge
+uv venv --system-site-packages --python "$(which python3)"
+source .venv/bin/activate
+uv sync
 ```
 
 ## 4. Build and run the ROS 2 publisher

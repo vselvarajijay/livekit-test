@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "livekit_bridge"
+version = "0.1.0"
+description = "Bridge ROS 2 H.264 topics to LiveKit."
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+dependencies = [
+    "livekit>=1.0,<2",
+    "livekit-api>=1.0,<2",
+    "av>=12",
+    "python-dotenv>=1.0",
+]
+maintainers = [{ name = "dev", email = "dev@example.com" }]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.scripts]
+livekit_publisher = "livekit_bridge.livekit_publisher:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["livekit_bridge*"]
+
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.data-files]
+"share/ament_index/resource_index/packages" = ["resource/livekit_bridge"]
+"share/livekit_bridge" = ["package.xml"]

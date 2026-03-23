@@ -1,6 +1,0 @@
-# Install into the same Python environment as ROS 2 (venv or system), e.g.:
-#   pip install -r requirements.txt
-livekit>=1.0,<2
-livekit-api>=1.0,<2
-av>=12
-python-dotenv>=1.0
