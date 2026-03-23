@@ -23,12 +23,25 @@ LOGGER = logging.getLogger("livekit_bridge.publisher")
 
 MAX_QUEUE_SIZE = 2
 
-# Match typical camera / image_transport publishers (BEST_EFFORT); default RELIABLE is incompatible.
-_SUB_QOS = QoSProfile(
-    depth=10,
-    reliability=ReliabilityPolicy.BEST_EFFORT,
-    history=HistoryPolicy.KEEP_LAST,
-)
+
+def _subscription_qos_profile() -> QoSProfile:
+    """Reliability must match the publisher; DDS has no 'either' option."""
+    raw = os.environ.get("ROS2_VIDEO_QOS_RELIABILITY", "best_effort").strip().lower()
+    if raw in ("reliable", "reliability"):
+        rel = ReliabilityPolicy.RELIABLE
+    elif raw in ("best_effort", "best-effort", "sensor"):
+        rel = ReliabilityPolicy.BEST_EFFORT
+    else:
+        LOGGER.warning(
+            "Unknown ROS2_VIDEO_QOS_RELIABILITY=%r; use reliable or best_effort (default)",
+            raw,
+        )
+        rel = ReliabilityPolicy.BEST_EFFORT
+    return QoSProfile(
+        depth=10,
+        reliability=rel,
+        history=HistoryPolicy.KEEP_LAST,
+    )
 
 
 def _load_dotenv_from_repo() -> None:
@@ -252,6 +265,11 @@ class LiveKitPublisherNode(Node):
 
     def __init__(self, topics: list[str]) -> None:
         super().__init__("livekit_publisher")
+        sub_qos = _subscription_qos_profile()
+        self.get_logger().info(
+            "CompressedImage subscription QoS reliability: %s",
+            sub_qos.reliability,
+        )
         self._queues: dict[str, queue.Queue] = {}
         for t in topics:
             q: queue.Queue = queue.Queue(maxsize=MAX_QUEUE_SIZE)
@@ -260,7 +278,7 @@ class LiveKitPublisherNode(Node):
                 CompressedImage,
                 t,
                 self._make_cb(t, q),
-                _SUB_QOS,
+                sub_qos,
             )
             self.get_logger().info(
                 f"Subscribed to {t} (sensor_msgs/CompressedImage)"
