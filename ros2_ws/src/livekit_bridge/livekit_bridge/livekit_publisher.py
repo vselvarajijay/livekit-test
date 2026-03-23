@@ -254,7 +254,9 @@ class LiveKitPublisherNode(Node):
                 self._make_cb(t, q),
                 10,
             )
-            self.get_logger().info("Subscribed to %s (sensor_msgs/CompressedImage)", t)
+            self.get_logger().info(
+                f"Subscribed to {t} (sensor_msgs/CompressedImage)"
+            )
 
     def _make_cb(self, topic: str, q: queue.Queue):
         def _cb(msg: CompressedImage) -> None:
